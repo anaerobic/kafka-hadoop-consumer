@@ -3,6 +3,8 @@ kafka-hadoop-consumer
 
 A Hadoop workload for consuming data from Kafka. 100% Map, 0% Reduce
 
+**Note that right now this is stupid because successive runs will duplicate data in HDFS, so it needs to be converted to use a consumer group**
+
 Usage:
 
 0. Build the java .jar using maven: mvn clean install
