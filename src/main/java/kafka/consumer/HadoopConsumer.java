@@ -1,13 +1,6 @@
 package kafka.consumer;
 
-import java.io.IOException;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -19,6 +12,8 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import java.io.IOException;
+
 public class HadoopConsumer extends Configured implements Tool {
 
     static {
@@ -28,7 +23,7 @@ public class HadoopConsumer extends Configured implements Tool {
     
     public static class KafkaMapper extends Mapper<LongWritable, BytesWritable, LongWritable, Text> {
         @Override
-        public void map(LongWritable key, BytesWritable value, Context context) throws IOException {
+        public void map(LongWritable key, BytesWritable value, Mapper.Context context) throws IOException {
             Text out = new Text();
             try {
                 out.set(value.getBytes(),0, value.getLength());

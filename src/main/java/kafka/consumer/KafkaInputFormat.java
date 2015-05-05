@@ -1,23 +1,19 @@
 package kafka.consumer;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KafkaInputFormat extends InputFormat<LongWritable, BytesWritable> {
 
@@ -37,7 +33,7 @@ public class KafkaInputFormat extends InputFormat<LongWritable, BytesWritable> {
         
         ZkUtils zk = new ZkUtils(conf);
         String topic = conf.get("kafka.topic");
-        String group = conf.get("kafka.groupid");
+        String group = conf.get("kafka.group.id");
         List<InputSplit> splits = new ArrayList<InputSplit>();
         List<String> partitions = zk.getPartitions(topic);
         
@@ -69,7 +65,7 @@ public class KafkaInputFormat extends InputFormat<LongWritable, BytesWritable> {
             this.topic = topic;
             this.lastCommit = lastCommit;
         }
-        @Override
+        //@Override
         public void readFields(DataInput in) throws IOException {
             brokerId = Text.readString(in);
             broker = Text.readString(in);
@@ -78,7 +74,7 @@ public class KafkaInputFormat extends InputFormat<LongWritable, BytesWritable> {
             lastCommit = in.readLong();
         }
 
-        @Override
+        //@Override
         public void write(DataOutput out) throws IOException {
             Text.writeString(out, brokerId);
             Text.writeString(out, broker);
@@ -148,7 +144,7 @@ public class KafkaInputFormat extends InputFormat<LongWritable, BytesWritable> {
             int timeout = conf.getInt("kafka.socket.timeout.ms", 30000);
             int bsize = conf.getInt("kafka.socket.buffersize", 64*1024);
             int fsize = conf.getInt("kafka.fetch.size", 1024 * 1024);
-            String reset = conf.get("kafka.autooffset.reset");
+            String reset = conf.get("kafka.auto.offset.reset");
             kcontext = new KafkaContext(ksplit.getBrokerId() + ":" + ksplit.getBroker(), 
                                         ksplit.getTopic(), 
                                         ksplit.getPartition(),
@@ -172,7 +168,7 @@ public class KafkaInputFormat extends InputFormat<LongWritable, BytesWritable> {
             if (count == 0L) return;
             Configuration conf = context.getConfiguration();
             ZkUtils zk = new ZkUtils(conf);
-            String group = conf.get("kafka.groupid");
+            String group = conf.get("kafka.group.id");
             String partition = ksplit.getBrokerId() + "-" + ksplit.getPartition();
             zk.setLastCommit(group, ksplit.getTopic(), partition, pos, true);
             zk.close();
